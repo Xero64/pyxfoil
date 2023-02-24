@@ -1,7 +1,9 @@
 from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    long_description = '''
+    Run XFoil from within Python and work with output results.
+    '''
 
 setup(
     name="pyxfoil",
