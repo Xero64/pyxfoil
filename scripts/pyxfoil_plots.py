@@ -1,7 +1,8 @@
 #%%
 # Import Dependencies
-from pyxfoil import Xfoil, set_workdir
-set_workdir('C:/Xfoil_WIP') # Sets the working directory for pyxfoil
+from pyxfoil import Xfoil, set_workdir#, set_xfoilexe
+set_workdir('C:/Xfoil_WIP') # Sets the working directory for pyxfoil.
+# set_xfoilexe('C:/Xfoil-6.99/xfoil.exe') # Sets the path of the xfoil executable.
 
 #%%
 # Creates Xfoil object from reading dat file.

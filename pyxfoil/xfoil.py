@@ -13,8 +13,10 @@ class Xfoil():
     results: Dict['str', 'XfoilResult'] = None
     polars: Dict['str', 'XfoilPolar'] = None
     _area: 'float' = None
+
     def __init__(self, name: 'str') -> None:
         self.name = name
+
     def points_from_dat(self, datfile: 'str') -> None:
         self.x = []
         self.y = []
@@ -31,12 +33,15 @@ class Xfoil():
                         self.x.append(x)
                         self.y.append(y)
         self._area = None
+
     def set_points(self, x: List['float'], y: List['float']) -> None:
         self.x = x
         self.y = y
         self._area = None
+
     def set_ppar(self, ppar: 'int') -> None:
         self.ppar = ppar
+
     @property
     def area(self) -> 'float':
         if self._area is None:
@@ -46,8 +51,11 @@ class Xfoil():
             if self.x[0] != self.x[-1] or self.y[0] != self.y[-1]:
                 self._area += self.x[0]*self.y[-1]-self.y[0]*self.x[-1]
         return self._area
+
     def write_dat(self) -> 'str':
+
         from pyxfoil import workdir
+
         datname = self.name.replace(' ', '_')
         filepath = join(workdir, datname)
         datfilepath = f'{filepath:s}.dat'
@@ -62,17 +70,28 @@ class Xfoil():
             for i in order:
                 file.write(frmstr.format(self.x[i], self.y[i]))
         return datfilepath
+
     def run_result(self, alfa: 'float', re: 'float'=None,
                    mach: 'float'=None) -> 'XfoilResult':
+
         from pyxfoil import xfoilexe
+
         datfilepath = self.write_dat()
         numpnl = len(self.x) - 1
         sesfilepath, resfilepath = write_result_session(self.name, datfilepath, numpnl,
                                                         alfa, mach=mach, re=re,
                                                         ppar=self.ppar)
+
         if isfile(resfilepath):
             remove(resfilepath)
+
+        if xfoilexe is None:
+            err = 'Cannot locate "xfoil.exe" in path. '
+            err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
+            raise SystemError(err)
+
         system('{:s} < {:s}'.format(xfoilexe, sesfilepath))
+
         res = split(resfilepath)[1]
         res = res.replace('.res', '')
         result = XfoilResult(res, numpnl)
@@ -82,18 +101,29 @@ class Xfoil():
             self.results = {}
         self.results[res] = result
         return result
+
     def run_polar(self, almin: 'float', almax: 'float', alint: 'float',
                   re: 'float'=None, mach: 'float'=None) -> 'XfoilPolar':
+
         from pyxfoil import xfoilexe
+
         datfilepath = self.write_dat()
         numpnl = len(self.x) - 1
         sesfilepath, polfilepath = write_polar_session(self.name, datfilepath,
                                                        numpnl, almin, almax, alint,
                                                        mach=mach, re=re,
                                                        ppar=self.ppar)
+
         if isfile(polfilepath):
             remove(polfilepath)
+
+        if xfoilexe is None:
+            err = 'Cannot locate "xfoil.exe" in path. '
+            err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
+            raise SystemError(err)
+
         system('{:s} < {:s}'.format(xfoilexe, sesfilepath))
+
         pol: 'str' = split(polfilepath)[1]
         pol = pol.replace('.pol', '')
         polar = XfoilPolar(pol, numpnl)
@@ -102,6 +132,7 @@ class Xfoil():
             self.polars = {}
         self.polars[pol] = polar
         return polar
+
     def plot_profile(self, *args, **kwargs):
         grid = kwargs.get('grid', True)
         aspect = kwargs.get('aspect', 'equal')

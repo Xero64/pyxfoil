@@ -17,13 +17,16 @@ class XfoilResult():
     h: List['float'] = None
     resfile: 'str' = None
     _cp: List['float'] = None
+
     def __init__(self, name: 'str', numpnl: 'int') -> None:
         self.name = name
         self.numpnl = numpnl
+
     def set_param(self, alpha: 'float', mach: 'float', re: 'float') -> None:
         self.alpha = alpha
         self.mach = mach
         self.re = re
+
     def read_result(self, resfile: 'str') -> None:
         with open(resfile, 'rt') as f:
             self.s = []
@@ -47,11 +50,13 @@ class XfoilResult():
                         self.cf.append(float(line[58:68]))
                         self.h.append(float(line[68:78]))
         self._cp = None
+
     @property
     def cp(self) -> List['float']:
         if self._cp is None:
             self._cp = [1-uei**2 for uei in self.ue]
         return self._cp
+
     def plot_result(self, xaxis='x', yaxis='ue', ax=None, *args, **kwargs):
         figsize = kwargs.get('figsize', (12, 8))
         if ax is None:
@@ -81,6 +86,7 @@ class XfoilResult():
         yvalue = self.get_value(yaxis)
         ax.plot(xvalue, yvalue, *args, label=label)
         return ax
+
     def result(self, var: 'str', correct: 'bool'=False) -> List['float']:
         res = self.get_value(var)
         if correct:
@@ -94,6 +100,7 @@ class XfoilResult():
         else:
             val = res.copy()
         return val
+
     def get_label(self, var: 'str') -> 'str':
         if var == 'x':
             label = '$x$'
@@ -116,6 +123,7 @@ class XfoilResult():
         else:
             raise ValueError(f'{var:s} does not exist in XfoilResult.')
         return label
+
     def get_value(self, var: 'str') -> List['float']:
         if var == 'x':
             value = self.x
@@ -138,6 +146,7 @@ class XfoilResult():
         else:
             raise ValueError(f'{var:s} does not exist in XfoilResult.')
         return value
+
     def __repr__(self) -> str:
         return f'<pyxfoil.XfoilResult {self.name:s}>'
 
@@ -145,7 +154,9 @@ def write_result_session(name: 'str', datfilepath: 'str', numpnl: 'int',
                          alpha: 'float', mach: Optional['float']=None,
                          re: Optional['float']=None,
                          ppar: Optional['int']=None) -> Tuple['str', 'str']:
+
     from pyxfoil import workdir
+
     resname = name.replace(' ', '_')
     resname += f'_{numpnl:d}_{alpha:g}'
     if mach is not None:

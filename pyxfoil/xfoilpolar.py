@@ -16,9 +16,11 @@ class XfoilPolar():
     cm: List['float'] = None
     trtop: List['float'] = None
     trbot: List['float'] = None
+
     def __init__(self, name: 'str', numpnl: 'int') -> None:
         self.name = name
         self.numpnl = numpnl
+
     def read_polar(self, filepath: str) -> None:
         self.alpha = []
         self.cl = []
@@ -54,11 +56,13 @@ class XfoilPolar():
                         self.cm.append(float(line[37:46]))
                         self.trtop.append(float(line[46:55]))
                         self.trbot.append(float(line[55:64]))
+
     @property
     def clocd(self) -> Optional[List['float']]:
         if self.cl is not None and self.cd is not None:
             clocdval = [cli/cdi for cli, cdi in zip(self.cl, self.cd)]
             return clocdval
+
     def plot_polar(self, xaxis='cd', yaxis='cl', ax=None, *args, **kwargs):
         figsize = kwargs.get('figsize', (12, 8))
         if ax is None:
@@ -84,6 +88,7 @@ class XfoilPolar():
         yvalue = self.get_value(yaxis)
         ax.plot(xvalue, yvalue, *args, label=label)
         return ax
+
     def get_label(self, var: 'str') -> 'str':
         if var == 'alpha':
             label = r'$\alpha$'
@@ -104,6 +109,7 @@ class XfoilPolar():
         else:
             raise ValueError(f'{var:s} does not exist in XfoilPolar.')
         return label
+
     def get_value(self, var: 'str') -> List['float']:
         if var == 'alpha':
             value = self.alpha
@@ -124,6 +130,7 @@ class XfoilPolar():
         else:
             raise ValueError(f'{var:s} does not exist in XfoilPolar.')
         return value
+
     def __repr__(self) -> str:
         return f'<pyxfoil.XfoilPolar {self.name:s}>'
 
@@ -132,7 +139,9 @@ def write_polar_session(name: 'str', datfilepath: 'str', numpnl: 'int',
                         mach: Optional['float']=None,
                         re: Optional['float']=None,
                         ppar: Optional['int']=None) -> Tuple['str', 'str']:
+
     from pyxfoil import workdir
+    
     polname = name.replace(' ', '_') + f'_{numpnl:d}'
     if mach is not None:
         polname += f'_{mach:g}'
