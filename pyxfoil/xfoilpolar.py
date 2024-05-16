@@ -2,22 +2,22 @@ from os.path import join
 from typing import Optional, Tuple, List
 
 class XfoilPolar():
-    name: 'str' = None
-    numpnl: 'int' = None
-    re: Optional['float'] = None
-    mach: Optional['float'] = None
-    ncrit: 'float' = None
-    xtrftop: 'float' = None
-    xtrfbot: 'float' = None
-    alpha: List['float'] = None
-    cl: List['float'] = None
-    cd: List['float'] = None
-    cdp: List['float'] = None
-    cm: List['float'] = None
-    trtop: List['float'] = None
-    trbot: List['float'] = None
+    name: str = None
+    numpnl: int = None
+    re: Optional[float] = None
+    mach: Optional[float] = None
+    ncrit: float = None
+    xtrftop: float = None
+    xtrfbot: float = None
+    alpha: List[float] = None
+    cl: List[float] = None
+    cd: List[float] = None
+    cdp: List[float] = None
+    cm: List[float] = None
+    trtop: List[float] = None
+    trbot: List[float] = None
 
-    def __init__(self, name: 'str', numpnl: 'int') -> None:
+    def __init__(self, name: str, numpnl: int) -> None:
         self.name = name
         self.numpnl = numpnl
 
@@ -58,7 +58,7 @@ class XfoilPolar():
                         self.trbot.append(float(line[55:64]))
 
     @property
-    def clocd(self) -> Optional[List['float']]:
+    def clocd(self) -> Optional[List[float]]:
         if self.cl is not None and self.cd is not None:
             clocdval = [cli/cdi for cli, cdi in zip(self.cl, self.cd)]
             return clocdval
@@ -89,7 +89,7 @@ class XfoilPolar():
         ax.plot(xvalue, yvalue, *args, label=label)
         return ax
 
-    def get_label(self, var: 'str') -> 'str':
+    def get_label(self, var: str) -> str:
         if var == 'alpha':
             label = r'$\alpha$'
         elif var == 'cl':
@@ -110,7 +110,7 @@ class XfoilPolar():
             raise ValueError(f'{var:s} does not exist in XfoilPolar.')
         return label
 
-    def get_value(self, var: 'str') -> List['float']:
+    def get_value(self, var: str) -> List[float]:
         if var == 'alpha':
             value = self.alpha
         elif var == 'cl':
@@ -134,14 +134,14 @@ class XfoilPolar():
     def __repr__(self) -> str:
         return f'<pyxfoil.XfoilPolar {self.name:s}>'
 
-def write_polar_session(name: 'str', datfilepath: 'str', numpnl: 'int',
-                        almin: 'float', almax: 'float', alint: 'float',
-                        mach: Optional['float']=None,
-                        re: Optional['float']=None,
-                        ppar: Optional['int']=None) -> Tuple['str', 'str']:
+def write_polar_session(name: str, datfilepath: str, numpnl: int,
+                        almin: float, almax: float, alint: float,
+                        mach: Optional[float]=None,
+                        re: Optional[float]=None,
+                        ppar: Optional[int]=None) -> Tuple[str, str]:
 
     from pyxfoil import workdir
-    
+
     polname = name.replace(' ', '_') + f'_{numpnl:d}'
     if mach is not None:
         polname += f'_{mach:g}'

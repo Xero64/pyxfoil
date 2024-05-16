@@ -6,18 +6,20 @@ from .xfoilpolar import XfoilPolar, write_polar_session
 from matplotlib.pyplot import figure
 
 class Xfoil():
-    name: 'str' = None
-    ppar: 'int' = None
-    x: List['float'] = None
-    y: List['float'] = None
-    results: Dict['str', 'XfoilResult'] = None
-    polars: Dict['str', 'XfoilPolar'] = None
-    _area: 'float' = None
+    name: str = None
+    ppar: int = None
+    x: List[float] = None
+    y: List[float] = None
+    results: Dict[str, 'XfoilResult'] = None
+    polars: Dict[str, 'XfoilPolar'] = None
+    frmstr: str = None
+    _area: float = None
 
-    def __init__(self, name: 'str') -> None:
+    def __init__(self, name: str, frmstr: str = '11.6f') -> None:
         self.name = name
+        self.frmstr = frmstr
 
-    def points_from_dat(self, datfile: 'str') -> None:
+    def points_from_dat(self, datfile: str) -> None:
         self.x = []
         self.y = []
         with open(datfile, 'rt') as file:
@@ -34,16 +36,16 @@ class Xfoil():
                         self.y.append(y)
         self._area = None
 
-    def set_points(self, x: List['float'], y: List['float']) -> None:
+    def set_points(self, x: List[float], y: List[float]) -> None:
         self.x = x
         self.y = y
         self._area = None
 
-    def set_ppar(self, ppar: 'int') -> None:
+    def set_ppar(self, ppar: int) -> None:
         self.ppar = ppar
 
     @property
-    def area(self) -> 'float':
+    def area(self) -> float:
         if self._area is None:
             self._area = 0.0
             for i in range(1, len(self.x)):
@@ -52,7 +54,7 @@ class Xfoil():
                 self._area += self.x[0]*self.y[-1]-self.y[0]*self.x[-1]
         return self._area
 
-    def write_dat(self) -> 'str':
+    def write_dat(self) -> str:
 
         from pyxfoil import workdir
 
@@ -64,15 +66,15 @@ class Xfoil():
             order = range(num-1, -1, -1)
         else:
             order = range(num)
-        frmstr = '  {:11.6f} {:11.6f}\n'
+        frmstr = '  {:' + self.frmstr + '} {:' + self.frmstr + '}\n'
         with open(datfilepath, 'wt') as file:
             file.write(self.name+'\n')
             for i in order:
                 file.write(frmstr.format(self.x[i], self.y[i]))
         return datfilepath
 
-    def run_result(self, alfa: 'float', re: 'float'=None,
-                   mach: 'float'=None) -> 'XfoilResult':
+    def run_result(self, alfa: float, re: float=None,
+                   mach: float=None) -> 'XfoilResult':
 
         from pyxfoil import xfoilexe
 
@@ -102,8 +104,8 @@ class Xfoil():
         self.results[res] = result
         return result
 
-    def run_polar(self, almin: 'float', almax: 'float', alint: 'float',
-                  re: 'float'=None, mach: 'float'=None) -> 'XfoilPolar':
+    def run_polar(self, almin: float, almax: float, alint: float,
+                  re: float=None, mach: float=None) -> 'XfoilPolar':
 
         from pyxfoil import xfoilexe
 
@@ -124,7 +126,7 @@ class Xfoil():
 
         system('{:s} < {:s}'.format(xfoilexe, sesfilepath))
 
-        pol: 'str' = split(polfilepath)[1]
+        pol: str = split(polfilepath)[1]
         pol = pol.replace('.pol', '')
         polar = XfoilPolar(pol, numpnl)
         polar.read_polar(polfilepath)

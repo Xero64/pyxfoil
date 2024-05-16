@@ -2,32 +2,32 @@ from os.path import join
 from typing import Tuple, Optional, List
 
 class XfoilResult():
-    name: 'str' = None
-    numpnl: 'int' = None
-    alpha: 'float' = None
-    re: Optional['float'] = None
-    mach: Optional['float'] = None
-    s: List['float'] = None
-    x: List['float'] = None
-    y: List['float'] = None
-    ue: List['float'] = None
-    ds: List['float'] = None
-    th: List['float'] = None
-    cf: List['float'] = None
-    h: List['float'] = None
-    resfile: 'str' = None
-    _cp: List['float'] = None
+    name: str = None
+    numpnl: int = None
+    alpha: float = None
+    re: Optional[float] = None
+    mach: Optional[float] = None
+    s: List[float] = None
+    x: List[float] = None
+    y: List[float] = None
+    ue: List[float] = None
+    ds: List[float] = None
+    th: List[float] = None
+    cf: List[float] = None
+    h: List[float] = None
+    resfile: str = None
+    _cp: List[float] = None
 
-    def __init__(self, name: 'str', numpnl: 'int') -> None:
+    def __init__(self, name: str, numpnl: int) -> None:
         self.name = name
         self.numpnl = numpnl
 
-    def set_param(self, alpha: 'float', mach: 'float', re: 'float') -> None:
+    def set_param(self, alpha: float, mach: float, re: float) -> None:
         self.alpha = alpha
         self.mach = mach
         self.re = re
 
-    def read_result(self, resfile: 'str') -> None:
+    def read_result(self, resfile: str) -> None:
         with open(resfile, 'rt') as f:
             self.s = []
             self.x = []
@@ -52,7 +52,7 @@ class XfoilResult():
         self._cp = None
 
     @property
-    def cp(self) -> List['float']:
+    def cp(self) -> List[float]:
         if self._cp is None:
             self._cp = [1-uei**2 for uei in self.ue]
         return self._cp
@@ -87,7 +87,7 @@ class XfoilResult():
         ax.plot(xvalue, yvalue, *args, label=label)
         return ax
 
-    def result(self, var: 'str', correct: 'bool'=False) -> List['float']:
+    def result(self, var: str, correct: 'bool'=False) -> List[float]:
         res = self.get_value(var)
         if correct:
             if var == 's':
@@ -101,7 +101,7 @@ class XfoilResult():
             val = res.copy()
         return val
 
-    def get_label(self, var: 'str') -> 'str':
+    def get_label(self, var: str) -> str:
         if var == 'x':
             label = '$x$'
         elif var == 'y':
@@ -124,7 +124,7 @@ class XfoilResult():
             raise ValueError(f'{var:s} does not exist in XfoilResult.')
         return label
 
-    def get_value(self, var: 'str') -> List['float']:
+    def get_value(self, var: str) -> List[float]:
         if var == 'x':
             value = self.x
         elif var == 'y':
@@ -150,10 +150,10 @@ class XfoilResult():
     def __repr__(self) -> str:
         return f'<pyxfoil.XfoilResult {self.name:s}>'
 
-def write_result_session(name: 'str', datfilepath: 'str', numpnl: 'int',
-                         alpha: 'float', mach: Optional['float']=None,
-                         re: Optional['float']=None,
-                         ppar: Optional['int']=None) -> Tuple['str', 'str']:
+def write_result_session(name: str, datfilepath: str, numpnl: int,
+                         alpha: float, mach: Optional[float]=None,
+                         re: Optional[float]=None,
+                         ppar: Optional[int]=None) -> Tuple[str, str]:
 
     from pyxfoil import workdir
 
