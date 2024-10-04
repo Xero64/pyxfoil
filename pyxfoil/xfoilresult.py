@@ -1,5 +1,6 @@
 from os.path import join
-from typing import Tuple, Optional, List
+from typing import List, Optional, Tuple
+
 
 class XfoilResult():
     name: str = None

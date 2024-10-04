@@ -1,12 +1,13 @@
 from os import curdir
 
+
 def find_xfoil(exe):
     def is_exe(fpath):
+        from os import X_OK, access
         from os.path import isfile
-        from os import access, X_OK
         return isfile(fpath) and access(fpath, X_OK)
-    from os.path import split, join
     from os import environ, pathsep
+    from os.path import join, split
     fpath, _ = split(exe)
     if fpath:
         if is_exe(exe):

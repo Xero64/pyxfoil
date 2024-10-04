@@ -1,9 +1,12 @@
-from os import system, remove
+from os import remove, system
 from os.path import isfile, join, split
-from typing import List, Dict
-from .xfoilresult import XfoilResult, write_result_session
-from .xfoilpolar import XfoilPolar, write_polar_session
+from typing import Dict, List
+
 from matplotlib.pyplot import figure
+
+from .xfoilpolar import XfoilPolar, write_polar_session
+from .xfoilresult import XfoilResult, write_result_session
+
 
 class Xfoil():
     name: str = None

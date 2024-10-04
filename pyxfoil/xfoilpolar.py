@@ -1,5 +1,6 @@
 from os.path import join
-from typing import Optional, Tuple, List
+from typing import List, Optional, Tuple
+
 
 class XfoilPolar():
     name: str = None
