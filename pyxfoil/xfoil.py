@@ -1,6 +1,5 @@
 from os import remove, system
 from os.path import isfile, join, split
-from typing import Dict, List
 
 from matplotlib.pyplot import figure
 
@@ -8,13 +7,13 @@ from .xfoilpolar import XfoilPolar, write_polar_session
 from .xfoilresult import XfoilResult, write_result_session
 
 
-class Xfoil():
+class Xfoil:
     name: str = None
     ppar: int = None
-    x: List[float] = None
-    y: List[float] = None
-    results: Dict[str, 'XfoilResult'] = None
-    polars: Dict[str, 'XfoilPolar'] = None
+    x: list[float] = None
+    y: list[float] = None
+    results: dict[str, 'XfoilResult'] = None
+    polars: dict[str, 'XfoilPolar'] = None
     frmstr: str = None
     _area: float = None
 
@@ -39,7 +38,7 @@ class Xfoil():
                         self.y.append(y)
         self._area = None
 
-    def set_points(self, x: List[float], y: List[float]) -> None:
+    def set_points(self, x: list[float], y: list[float]) -> None:
         self.x = x
         self.y = y
         self._area = None

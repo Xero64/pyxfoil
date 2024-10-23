@@ -1,22 +1,21 @@
 from os.path import join
-from typing import List, Optional, Tuple
 
 
-class XfoilPolar():
+class XfoilPolar:
     name: str = None
     numpnl: int = None
-    re: Optional[float] = None
-    mach: Optional[float] = None
+    re: float | None = None
+    mach: float | None = None
     ncrit: float = None
     xtrftop: float = None
     xtrfbot: float = None
-    alpha: List[float] = None
-    cl: List[float] = None
-    cd: List[float] = None
-    cdp: List[float] = None
-    cm: List[float] = None
-    trtop: List[float] = None
-    trbot: List[float] = None
+    alpha: list[float] = None
+    cl: list[float] = None
+    cd: list[float] = None
+    cdp: list[float] = None
+    cm: list[float] = None
+    trtop: list[float] = None
+    trbot: list[float] = None
 
     def __init__(self, name: str, numpnl: int) -> None:
         self.name = name
@@ -59,7 +58,7 @@ class XfoilPolar():
                         self.trbot.append(float(line[55:64]))
 
     @property
-    def clocd(self) -> Optional[List[float]]:
+    def clocd(self) -> list[float] | None:
         if self.cl is not None and self.cd is not None:
             clocdval = [cli/cdi for cli, cdi in zip(self.cl, self.cd)]
             return clocdval
@@ -111,7 +110,7 @@ class XfoilPolar():
             raise ValueError(f'{var:s} does not exist in XfoilPolar.')
         return label
 
-    def get_value(self, var: str) -> List[float]:
+    def get_value(self, var: str) -> list[float]:
         if var == 'alpha':
             value = self.alpha
         elif var == 'cl':
@@ -137,9 +136,9 @@ class XfoilPolar():
 
 def write_polar_session(name: str, datfilepath: str, numpnl: int,
                         almin: float, almax: float, alint: float,
-                        mach: Optional[float]=None,
-                        re: Optional[float]=None,
-                        ppar: Optional[int]=None) -> Tuple[str, str]:
+                        mach: float | None = None,
+                        re: float | None = None,
+                        ppar: int | None = None) -> tuple[str, str]:
 
     from pyxfoil import workdir
 
