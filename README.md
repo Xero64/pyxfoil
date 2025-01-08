@@ -24,9 +24,9 @@ xfoil.set_ppar(180)
 # Runs xfoil for the following parameters
 al = [-2.0, 0.0, 4.0, 6.0]
 mach = 0.1
-re = 100000.0
+Re = 100000.0
 for ali in al:
-    rescase = xfoil.run_result(ali, mach=mach, re=re)
+    rescase = xfoil.run_result(ali, mach=mach, Re=Re)
 ```
 
 #
@@ -59,21 +59,21 @@ _ = ax3.legend()
 #
 ``` python
 # Run the xfoil in polar mode from alpha min to alpha max with interval
-re = 100000.0
+Re = 100000.0
 almin = -10.0
 almax = 10.0
 alint = 0.5
-polar1 = xfoil.run_polar(almin, almax, alint, mach=mach, re=re)
+polar1 = xfoil.run_polar(almin, almax, alint, mach=mach, Re=Re)
 ```
 
 #
 ``` python
 # Run the xfoil in polar mode from alpha min to alpha max with interval
-re = 200000.0
+Re = 200000.0
 almin = -10.0
 almax = 10.0
 alint = 0.5
-polar2 = xfoil.run_polar(almin, almax, alint, mach=mach, re=re)
+polar2 = xfoil.run_polar(almin, almax, alint, mach=mach, Re=Re)
 ```
 
 #

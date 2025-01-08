@@ -1,34 +1,49 @@
 from os.path import join
+from typing import TYPE_CHECKING, Any
+
+from matplotlib.pyplot import figure
+from numpy import asarray, radians
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from numpy.typing import NDArray
 
 
 class XfoilPolar:
     name: str = None
     numpnl: int = None
-    re: float | None = None
+    Re: float | None = None
     mach: float | None = None
     ncrit: float = None
     xtrftop: float = None
     xtrfbot: float = None
-    alpha: list[float] = None
-    cl: list[float] = None
-    cd: list[float] = None
-    cdp: list[float] = None
-    cm: list[float] = None
-    trtop: list[float] = None
-    trbot: list[float] = None
+    alpha: 'NDArray' = None
+    cl: 'NDArray' = None
+    cd: 'NDArray' = None
+    cdp: 'NDArray' = None
+    cm: 'NDArray' = None
+    trtop: 'NDArray' = None
+    trbot: 'NDArray' = None
+    _alrad: 'NDArray' = None
+    _clocd: 'NDArray' = None
 
     def __init__(self, name: str, numpnl: int) -> None:
         self.name = name
         self.numpnl = numpnl
 
+    def reset(self) -> None:
+        for attr in self.__dict__:
+            if attr.startswith('_'):
+                setattr(self, attr, None)
+
     def read_polar(self, filepath: str) -> None:
-        self.alpha = []
-        self.cl = []
-        self.cd = []
-        self.cdp = []
-        self.cm = []
-        self.trtop = []
-        self.trbot = []
+        alpha = []
+        cl = []
+        cd = []
+        cdp = []
+        cm = []
+        trtop = []
+        trbot = []
         read = False
         with open(filepath, 'rt') as file:
             for line in file:
@@ -42,51 +57,68 @@ class XfoilPolar:
                     self.xtrfbot = float(line[27:34])
                 if line[0:8] == ' Mach = ':
                     self.mach = float(line[8:15])
-                    self.re = float(line[25:38].replace(' ', ''))
+                    self.Re = float(line[25:38].replace(' ', ''))
                     self.ncrit = float(line[51:58])
                 if line[0:8] == '   alpha':
                     read = True
                     continue
                 if read:
                     if line[0:8] != '  ------':
-                        self.alpha.append(float(line[0:8]))
-                        self.cl.append(float(line[8:17]))
-                        self.cd.append(float(line[17:27]))
-                        self.cdp.append(float(line[27:37]))
-                        self.cm.append(float(line[37:46]))
-                        self.trtop.append(float(line[46:55]))
-                        self.trbot.append(float(line[55:64]))
+                        alpha.append(float(line[0:8]))
+                        cl.append(float(line[8:17]))
+                        cd.append(float(line[17:27]))
+                        cdp.append(float(line[27:37]))
+                        cm.append(float(line[37:46]))
+                        trtop.append(float(line[46:55]))
+                        trbot.append(float(line[55:64]))
+        self.alpha = asarray(alpha)
+        self.cl = asarray(cl)
+        self.cd = asarray(cd)
+        self.cdp = asarray(cdp)
+        self.cm = asarray(cm)
+        self.trtop = asarray(trtop)
+        self.trbot = asarray(trbot)
+        self.reset()
 
     @property
-    def clocd(self) -> list[float] | None:
-        if self.cl is not None and self.cd is not None:
-            clocdval = [cli/cdi for cli, cdi in zip(self.cl, self.cd)]
-            return clocdval
+    def alrad(self) -> 'NDArray':
+        if self._alrad is None:
+            self._alrad = radians(self.alpha)
+        return self._alrad
 
-    def plot_polar(self, xaxis='cd', yaxis='cl', ax=None, *args, **kwargs):
-        figsize = kwargs.get('figsize', (12, 8))
+    @property
+    def clocd(self) -> 'NDArray | None':
+        if self._clocd is None:
+            if self.cl is not None and self.cd is not None:
+                clocdval = [cli/cdi for cli, cdi in zip(self.cl, self.cd)]
+                self._clocd = asarray(clocdval)
+        return self._clocd
+
+    def plot_polar(self, xaxis='cd', yaxis='cl',
+                   ax: 'Axes | None'=None, **kwargs: dict[str, Any]) -> 'Axes':
         if ax is None:
-            from matplotlib.pyplot import figure
-            fig = figure(figsize=figsize)
+            figsize = kwargs.pop('figsize', (12, 8))
+            fig = figure(figsize = figsize)
             ax = fig.gca()
-            title = r'Polar plot for $M = {:g}$ and $Re = {:.12g}$'
-            ax.set_title(title.format(self.mach, self.re))
-            grid = kwargs.get('grid', True)
+            title = fr'Polar plot for $M = {self.mach:g}$ and $Re = {self.Re:.12g}$'
+            ax.set_title(title.format(self.mach, self.Re))
+            grid = kwargs.pop('grid', True)
             ax.grid(grid)
             xlabel = self.get_label(xaxis)
             ylabel = self.get_label(yaxis)
             ax.set_xlabel(xlabel)
             ax.set_ylabel(ylabel)
         label = r''
-        if self.re is not None:
-            label += r'$Re = {:.12g}$'.format(self.re)
-        if self.re is not None and self.mach is not None:
+        if self.Re is not None:
+            label += r'$Re = {:.12g}$'.format(self.Re)
+        if self.Re is not None and self.mach is not None:
             label += r'; '
         if self.mach is not None:
             label += r'$M = {:g}$'.format(self.mach)
         xvalue = self.get_value(xaxis)
         yvalue = self.get_value(yaxis)
-        ax.plot(xvalue, yvalue, *args, label=label)
+        kwargs.setdefault('label', label)
+        ax.plot(xvalue, yvalue, **kwargs)
         return ax
 
     def get_label(self, var: str) -> str:
@@ -102,7 +134,7 @@ class XfoilPolar:
             label = '$C_m$'
         elif var == 'toptr':
             label = r'$Top X Transition$'
-        elif var == 'th':
+        elif var == 'bottr':
             label = r'$Bottom X Transition$'
         elif var == 'clocd':
             label = r'$\frac{c_l}{c_d}$'
@@ -110,7 +142,7 @@ class XfoilPolar:
             raise ValueError(f'{var:s} does not exist in XfoilPolar.')
         return label
 
-    def get_value(self, var: str) -> list[float]:
+    def get_value(self, var: str) -> 'NDArray':
         if var == 'alpha':
             value = self.alpha
         elif var == 'cl':
@@ -123,7 +155,7 @@ class XfoilPolar:
             value = self.cm
         elif var == 'toptr':
             value = self.trtop
-        elif var == 'th':
+        elif var == 'bottr':
             value = self.trbot
         elif var == 'clocd':
             value = self.clocd
@@ -134,10 +166,11 @@ class XfoilPolar:
     def __repr__(self) -> str:
         return f'<pyxfoil.XfoilPolar {self.name:s}>'
 
+
 def write_polar_session(name: str, datfilepath: str, numpnl: int,
                         almin: float, almax: float, alint: float,
                         mach: float | None = None,
-                        re: float | None = None,
+                        Re: float | None = None,
                         ppar: int | None = None) -> tuple[str, str]:
 
     from pyxfoil import workdir
@@ -145,8 +178,8 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
     polname = name.replace(' ', '_') + f'_{numpnl:d}'
     if mach is not None:
         polname += f'_{mach:g}'
-    if re is not None:
-        polname += f'_{re:.12g}'
+    if Re is not None:
+        polname += f'_{Re:.12g}'
     filepath = join(workdir, polname)
     sesfilepath = f'{filepath:s}.ses'
     polfilepath = f'{filepath:s}.pol'
@@ -160,8 +193,8 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
         file.write('oper\n')
         if mach is not None:
             file.write('mach {:g}\n'.format(mach))
-        if re is not None:
-            file.write('visc {:.12g}\n'.format(re))
+        if Re is not None:
+            file.write('visc {:.12g}\n'.format(Re))
         file.write('pacc\n')
         file.write('{:s}\n'.format(polfilepath))
         file.write('\n')
@@ -172,8 +205,9 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
         file.write('pacc\n')
         if mach is not None:
             file.write('mach 0.0\n')
-        if re is not None:
+        if Re is not None:
             file.write('visc\n')
         file.write('\n')
         file.write('quit\n')
+
     return sesfilepath, polfilepath

@@ -1,93 +1,122 @@
 from os.path import join
+from typing import TYPE_CHECKING, Any
+
+from matplotlib.pyplot import figure
+from numpy import asarray, radians
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from numpy.typing import NDArray
 
 
 class XfoilResult:
     name: str = None
     numpnl: int = None
     alpha: float = None
-    re: float | None = None
+    Re: float | None = None
     mach: float | None = None
-    s: list[float] = None
-    x: list[float] = None
-    y: list[float] = None
-    ue: list[float] = None
-    ds: list[float] = None
-    th: list[float] = None
-    cf: list[float] = None
-    h: list[float] = None
+    s: 'NDArray' = None
+    x: 'NDArray' = None
+    y: 'NDArray' = None
+    ue: 'NDArray' = None
+    ds: 'NDArray' = None
+    th: 'NDArray' = None
+    cf: 'NDArray' = None
+    h: 'NDArray' = None
     resfile: str = None
-    _cp: list[float] = None
+    _alrad: 'NDArray' = None
+    _cp: 'NDArray' = None
 
     def __init__(self, name: str, numpnl: int) -> None:
         self.name = name
         self.numpnl = numpnl
 
-    def set_param(self, alpha: float, mach: float, re: float) -> None:
+    def reset(self) -> None:
+        for attr in self.__dict__:
+            if attr.startswith('_'):
+                setattr(self, attr, None)
+
+    def set_param(self, alpha: float, mach: float, Re: float) -> None:
         self.alpha = alpha
         self.mach = mach
-        self.re = re
+        self.Re = Re
 
     def read_result(self, resfile: str) -> None:
         with open(resfile, 'rt') as f:
-            self.s = []
-            self.x = []
-            self.y = []
-            self.ue = []
-            self.ds = []
-            self.th = []
-            self.cf = []
-            self.h = []
+            s = []
+            x = []
+            y = []
+            ue = []
+            ds = []
+            th = []
+            cf = []
+            h = []
             for line in f:
                 line = line.rstrip('\n')
                 if line != '':
                     if line[0] != '#':
-                        self.s.append(float(line[1:11]))
-                        self.x.append(float(line[11:20]))
-                        self.y.append(float(line[20:29]))
-                        self.ue.append(float(line[29:38]))
-                        self.ds.append(float(line[38:48]))
-                        self.th.append(float(line[48:58]))
-                        self.cf.append(float(line[58:68]))
-                        self.h.append(float(line[68:78]))
-        self._cp = None
+                        s.append(float(line[1:11]))
+                        x.append(float(line[11:20]))
+                        y.append(float(line[20:29]))
+                        ue.append(float(line[29:38]))
+                        ds.append(float(line[38:48]))
+                        th.append(float(line[48:58]))
+                        cf.append(float(line[58:68]))
+                        h.append(float(line[68:78]))
+        self.s = asarray(s)
+        self.x = asarray(x)
+        self.y = asarray(y)
+        self.ue = asarray(ue)
+        self.ds = asarray(ds)
+        self.th = asarray(th)
+        self.cf = asarray(cf)
+        self.h = asarray(h)
+        self.reset()
 
     @property
-    def cp(self) -> list[float]:
+    def alrad(self) -> 'NDArray':
+        if self._alrad is None:
+            self._alrad = radians(self.alpha)
+        return self._alrad
+
+    @property
+    def cp(self) -> 'NDArray':
         if self._cp is None:
-            self._cp = [1-uei**2 for uei in self.ue]
+            self._cp = asarray([1-uei**2 for uei in self.ue])
         return self._cp
 
-    def plot_result(self, xaxis='x', yaxis='ue', ax=None, *args, **kwargs):
-        figsize = kwargs.get('figsize', (12, 8))
+    def plot_result(self, xaxis='x', yaxis='ue', ax: 'Axes| None' = None,
+                    **kwargs: dict[str, Any]) -> 'Axes':
         if ax is None:
-            from matplotlib.pyplot import figure
+            figsize = kwargs.pop('figsize', (12, 8))
             fig = figure(figsize=figsize)
             ax = fig.gca()
-            grid = kwargs.get('grid', True)
+            grid = kwargs.pop('grid', True)
             ax.grid(grid)
             xlabel = self.get_label(xaxis)
             ylabel = self.get_label(yaxis)
             ax.set_xlabel(xlabel)
             ax.set_ylabel(ylabel)
             title = r'Result plot for $\alpha = {:g}$'.format(self.alpha)
-            if self.re is not None:
-                title += r' and $Re = {:.12g}$'.format(self.re)
+            if self.Re is not None:
+                title += r' and $Re = {:.12g}$'.format(self.Re)
             if self.mach is not None:
                 title += r' and $M = {:g}$'.format(self.mach)
             ax.set_title(title)
             if yaxis == 'cp':
                 ax.invert_yaxis()
         label = r'$\alpha = {:g}$'.format(self.alpha)
-        if self.re is not None:
-            label += r'; $Re = {:.12g}$'.format(self.re)
+        if self.Re is not None:
+            label += r'; $Re = {:.12g}$'.format(self.Re)
         if self.mach is not None:
             label += r'; $M = {:g}$'.format(self.mach)
         xvalue = self.get_value(xaxis)
         yvalue = self.get_value(yaxis)
-        ax.plot(xvalue, yvalue, *args, label=label)
+        kwargs.setdefault('label', label)
+        ax.plot(xvalue, yvalue, **kwargs)
         return ax
 
-    def result(self, var: str, correct: bool=False) -> list[float]:
+    def result(self, var: str, correct: bool=False) -> 'NDArray':
         res = self.get_value(var)
         if correct:
             if var == 's':
@@ -124,7 +153,7 @@ class XfoilResult:
             raise ValueError(f'{var:s} does not exist in XfoilResult.')
         return label
 
-    def get_value(self, var: str) -> list[float]:
+    def get_value(self, var: str) -> 'NDArray':
         if var == 'x':
             value = self.x
         elif var == 'y':
@@ -150,9 +179,10 @@ class XfoilResult:
     def __repr__(self) -> str:
         return f'<pyxfoil.XfoilResult {self.name:s}>'
 
+
 def write_result_session(name: str, datfilepath: str, numpnl: int,
                          alpha: float, mach: float | None = None,
-                         re: float | None = None,
+                         Re: float | None = None,
                          ppar: int | None = None) -> tuple[str, str]:
 
     from pyxfoil import workdir
@@ -161,8 +191,8 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
     resname += f'_{numpnl:d}_{alpha:g}'
     if mach is not None:
         resname += f'_{mach:g}'
-    if re is not None:
-        resname += f'_{re:.12g}'
+    if Re is not None:
+        resname += f'_{Re:.12g}'
     filepath = join(workdir, resname)
     sesfilepath = f'{filepath:s}.ses'
     resfilepath = f'{filepath:s}.res'
@@ -176,14 +206,15 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
         file.write('oper\n')
         if mach is not None:
             file.write('mach {:g}\n'.format(mach))
-        if re is not None:
-            file.write('visc {:.12g}\n'.format(re))
+        if Re is not None:
+            file.write('visc {:.12g}\n'.format(Re))
         file.write('alfa {:g}\n'.format(alpha))
         file.write('dump {:s}\n'.format(resfilepath))
         if mach is not None:
             file.write('mach 0.0\n')
-        if re is not None:
+        if Re is not None:
             file.write('visc\n')
         file.write('\n')
         file.write('quit\n')
+
     return sesfilepath, resfilepath

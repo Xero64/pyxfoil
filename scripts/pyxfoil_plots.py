@@ -15,9 +15,9 @@ xfoil.set_ppar(180)
 # Runs xfoil for the following parameters
 al = [-2.0, 0.0, 4.0, 6.0]
 mach = 0.1
-re = 100000.0
+Re = 100000.0
 for ali in al:
-    rescase = xfoil.run_result(ali, mach=mach, re=re)
+    rescase = xfoil.run_result(ali, mach=mach, Re=Re)
 
 #%%
 # Plots xfoil airfoil profile
@@ -27,31 +27,31 @@ ax1 = xfoil.plot_profile(ls='-')
 # Shows plots for cases in xfoil cases
 ax2 = None
 for resname in xfoil.results:
-    ax2 = xfoil.results[resname].plot_result(yaxis='cp', ax=ax2, ls='-x')
+    ax2 = xfoil.results[resname].plot_result(yaxis='cp', ax=ax2)
 _ = ax2.legend()
 
 #%%
 # Shows plots for cases in xfoil cases
 ax3 = None
 for resname in xfoil.results:
-    ax3 = xfoil.results[resname].plot_result(yaxis='ds', ax=ax3, ls='-o')
+    ax3 = xfoil.results[resname].plot_result(yaxis='ds', ax=ax3)
 _ = ax3.legend()
 
 #%%
 # Run the xfoil in polar mode from alpha min to alpha max with interval
-re = 100000.0
+Re = 100000.0
 almin = -10.0
 almax = 10.0
 alint = 0.5
-polar1 = xfoil.run_polar(almin, almax, alint, mach=mach, re=re)
+polar1 = xfoil.run_polar(almin, almax, alint, mach=mach, Re=Re)
 
 #%%
 # Run the xfoil in polar mode from alpha min to alpha max with interval
-re = 200000.0
+Re = 200000.0
 almin = -10.0
 almax = 10.0
 alint = 0.5
-polar2 = xfoil.run_polar(almin, almax, alint, mach=mach, re=re)
+polar2 = xfoil.run_polar(almin, almax, alint, mach=mach, Re=Re)
 
 #%%
 # Plot two polars created above
@@ -63,13 +63,13 @@ _ = axp1.legend()
 #%%
 # Plot two lift to drag ratios created above
 axp2 = None
-axp2 = polar1.plot_polar(ax=axp2, xaxis='alpha', yaxis='clocd', ls='-o')
-axp2 = polar2.plot_polar(ax=axp2, xaxis='alpha', yaxis='clocd', ls='-x')
+axp2 = polar1.plot_polar(ax=axp2, xaxis='alpha', yaxis='clocd')
+axp2 = polar2.plot_polar(ax=axp2, xaxis='alpha', yaxis='clocd')
 _ = axp2.legend()
 
 #%%
 # Plot two lift curves created above
 axp3 = None
-axp3 = polar1.plot_polar(ax=axp3, xaxis='alpha', yaxis='cl', ls='-o')
-axp3 = polar2.plot_polar(ax=axp3, xaxis='alpha', yaxis='cl', ls='-x')
+axp3 = polar1.plot_polar(ax=axp3, xaxis='alpha', yaxis='cl')
+axp3 = polar2.plot_polar(ax=axp3, xaxis='alpha', yaxis='cl')
 _ = axp3.legend()

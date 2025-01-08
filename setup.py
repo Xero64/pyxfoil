@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="pyxfoil",
-    version="0.0.3",
+    version="0.0.4",
     author="Xero64",
     author_email="xero64@gmail.com",
     description="Run XFoil from within Python and work with output results.",
@@ -20,5 +20,5 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.10',
 )

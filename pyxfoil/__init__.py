@@ -19,12 +19,15 @@ def find_xfoil(exe):
                 return exe_file
     return None
 
+
 xfoilexe = find_xfoil('xfoil.exe')
 workdir = None
+
 
 def set_xfoilexe(xfoil):
     global xfoilexe
     xfoilexe = xfoil
+
 
 def set_workdir(wdir):
     from os.path import join
@@ -34,6 +37,8 @@ def set_workdir(wdir):
     global workdir
     workdir = wdir
 
+
 set_workdir(curdir)
 
-from .xfoil import Xfoil
+
+from .xfoil import Xfoil as Xfoil

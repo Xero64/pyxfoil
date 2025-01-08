@@ -1,17 +1,25 @@
+from collections.abc import Iterable
 from os import remove, system
 from os.path import isfile, join, split
+from typing import TYPE_CHECKING, Any
+
+from numpy import asarray
 
 from matplotlib.pyplot import figure
 
 from .xfoilpolar import XfoilPolar, write_polar_session
 from .xfoilresult import XfoilResult, write_result_session
 
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from numpy.typing import NDArray
+
 
 class Xfoil:
     name: str = None
     ppar: int = None
-    x: list[float] = None
-    y: list[float] = None
+    x: 'NDArray' = None
+    y: 'NDArray' = None
     results: dict[str, 'XfoilResult'] = None
     polars: dict[str, 'XfoilPolar'] = None
     frmstr: str = None
@@ -22,8 +30,8 @@ class Xfoil:
         self.frmstr = frmstr
 
     def points_from_dat(self, datfile: str) -> None:
-        self.x = []
-        self.y = []
+        x = []
+        y = []
         with open(datfile, 'rt') as file:
             for i, line in enumerate(file):
                 line = line.rstrip('\n')
@@ -32,15 +40,15 @@ class Xfoil:
                 else:
                     split = line.split()
                     if len(split) == 2:
-                        x = float(split[0])
-                        y = float(split[1])
-                        self.x.append(x)
-                        self.y.append(y)
+                        x.append(float(split[0]))
+                        y.append(float(split[1]))
+        self.x = asarray(x)
+        self.y = asarray(y)
         self._area = None
 
-    def set_points(self, x: list[float], y: list[float]) -> None:
-        self.x = x
-        self.y = y
+    def set_points(self, x: Iterable[float], y: Iterable[float]) -> None:
+        self.x = asarray(x)
+        self.y = asarray(y)
         self._area = None
 
     def set_ppar(self, ppar: int) -> None:
@@ -49,11 +57,13 @@ class Xfoil:
     @property
     def area(self) -> float:
         if self._area is None:
-            self._area = 0.0
-            for i in range(1, len(self.x)):
-                self._area += self.x[i]*self.y[i-1]-self.y[i]*self.x[i-1]
-            if self.x[0] != self.x[-1] or self.y[0] != self.y[-1]:
-                self._area += self.x[0]*self.y[-1]-self.y[0]*self.x[-1]
+            xa, ya = self.x[:-1], self.y[:-1]
+            xb, yb = self.x[1:], self.y[1:]
+            areax2 = sum(xa*yb - xb*ya)
+            xa, ya = self.x[-1], self.y[-1]
+            xb, yb = self.x[0], self.y[0]
+            areax2 += xa*yb - xb*ya
+            self._area = 0.5*areax2
         return self._area
 
     def write_dat(self) -> str:
@@ -75,7 +85,7 @@ class Xfoil:
                 file.write(frmstr.format(self.x[i], self.y[i]))
         return datfilepath
 
-    def run_result(self, alfa: float, re: float=None,
+    def run_result(self, alfa: float, Re: float=None,
                    mach: float=None) -> 'XfoilResult':
 
         from pyxfoil import xfoilexe
@@ -83,7 +93,7 @@ class Xfoil:
         datfilepath = self.write_dat()
         numpnl = len(self.x) - 1
         sesfilepath, resfilepath = write_result_session(self.name, datfilepath, numpnl,
-                                                        alfa, mach=mach, re=re,
+                                                        alfa, mach=mach, Re=Re,
                                                         ppar=self.ppar)
 
         if isfile(resfilepath):
@@ -99,7 +109,7 @@ class Xfoil:
         res = split(resfilepath)[1]
         res = res.replace('.res', '')
         result = XfoilResult(res, numpnl)
-        result.set_param(alfa, mach, re)
+        result.set_param(alfa, mach, Re)
         result.read_result(resfilepath)
         if self.results is None:
             self.results = {}
@@ -107,7 +117,7 @@ class Xfoil:
         return result
 
     def run_polar(self, almin: float, almax: float, alint: float,
-                  re: float=None, mach: float=None) -> 'XfoilPolar':
+                  Re: float | None = None, mach: float | None = None) -> 'XfoilPolar':
 
         from pyxfoil import xfoilexe
 
@@ -115,7 +125,7 @@ class Xfoil:
         numpnl = len(self.x) - 1
         sesfilepath, polfilepath = write_polar_session(self.name, datfilepath,
                                                        numpnl, almin, almax, alint,
-                                                       mach=mach, re=re,
+                                                       mach=mach, Re=Re,
                                                        ppar=self.ppar)
 
         if isfile(polfilepath):
@@ -137,14 +147,21 @@ class Xfoil:
         self.polars[pol] = polar
         return polar
 
-    def plot_profile(self, *args, **kwargs):
-        grid = kwargs.get('grid', True)
-        aspect = kwargs.get('aspect', 'equal')
-        figsize = kwargs.get('figsize', (12, 8))
-        fig = figure(figsize=figsize)
-        ax = fig.gca()
-        ax.plot(self.x, self.y, *args, **kwargs)
-        ax.grid(grid)
-        ax.set_aspect(aspect)
-        ax.set_title('Airfoil profile for {:}.'.format(self.name))
+    def plot_profile(self, ax: 'Axes | None' = None, **kwargs: dict[str, Any]) -> 'Axes':
+        if ax is None:
+            figsize = kwargs.pop('figsize', (12, 8))
+            grid = kwargs.pop('grid', True)
+            aspect = kwargs.pop('aspect', 'equal')
+            fig = figure(figsize=figsize)
+            ax = fig.gca()
+            ax.grid(grid)
+            ax.set_aspect(aspect)
+            ax.set_title('Airfoil profile for {:}.'.format(self.name))
+        ax.plot(self.x, self.y, **kwargs)
         return ax
+
+    def __repr__(self) -> str:
+        return f'Xfoil({self.name:s})'
+
+    def __str__(self) -> str:
+        return f'Xfoil({self.name:s})'

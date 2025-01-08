@@ -15,8 +15,8 @@ xfoil.set_ppar(180)
 # Runs xfoil for the following parameters
 al = 0.0
 mach = 0.0
-re = 100000.0
-rescase = xfoil.run_result(al, mach=mach, re=re)
+Re = 100000.0
+rescase = xfoil.run_result(al, mach=mach, Re=Re)
 
 #%%
 # Plots xfoil airfoil profile
@@ -26,40 +26,40 @@ ax1 = xfoil.plot_profile(ls='-')
 # Shows plots for cases in xfoil cases
 ax2 = None
 for result in xfoil.results.values():
-    ax2 = result.plot_result(yaxis='cp', ax=ax2, ls='-x')
+    ax2 = result.plot_result(yaxis='cp', ax=ax2)
 _ = ax2.legend()
 
 #%%
 # Shows plots for cases in xfoil cases
 ax3 = None
 for result in xfoil.results.values():
-    ax3 = result.plot_result(yaxis='ds', ax=ax3, ls='-o')
+    ax3 = result.plot_result(yaxis='ds', ax=ax3)
 _ = ax3.legend()
 
 #%%
 # Shows plots for cases in xfoil cases
 ax4 = None
 for result in xfoil.results.values():
-    ax4 = result.plot_result(yaxis='th', ax=ax4, ls='-o')
+    ax4 = result.plot_result(yaxis='th', ax=ax4)
 _ = ax4.legend()
 
 #%%
 # Shows plots for cases in xfoil cases
 ax5 = None
 for result in xfoil.results.values():
-    ax5 = result.plot_result(yaxis='cf', ax=ax5, ls='-o')
+    ax5 = result.plot_result(yaxis='cf', ax=ax5)
 _ = ax5.legend()
 
 #%%
 # Shows plots for cases in xfoil cases
 ax6 = None
 for result in xfoil.results.values():
-    ax6 = result.plot_result(yaxis='h', ax=ax6, ls='-o')
+    ax6 = result.plot_result(yaxis='h', ax=ax6)
 _ = ax6.legend()
 
 #%%
 # Shows plots for cases in xfoil cases
 ax7 = None
 for result in xfoil.results.values():
-    ax7 = result.plot_result(yaxis='ue', ax=ax7, ls='-o')
+    ax7 = result.plot_result(yaxis='ue', ax=ax7)
 _ = ax7.legend()
