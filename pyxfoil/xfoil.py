@@ -117,7 +117,8 @@ class Xfoil:
         return result
 
     def run_polar(self, almin: float, almax: float, alint: float,
-                  Re: float | None = None, mach: float | None = None) -> 'XfoilPolar':
+                  Re: float | None = None, mach: float | None = None,
+                  xtrtop: float = 1.0, xtrbot: float = 1.0) -> 'XfoilPolar':
 
         from pyxfoil import xfoilexe
 
@@ -125,8 +126,8 @@ class Xfoil:
         numpnl = len(self.x) - 1
         sesfilepath, polfilepath = write_polar_session(self.name, datfilepath,
                                                        numpnl, almin, almax, alint,
-                                                       mach=mach, Re=Re,
-                                                       ppar=self.ppar)
+                                                       mach=mach, Re=Re, ppar=self.ppar,
+                                                       xtrtop=xtrtop, xtrbot=xtrbot)
 
         if isfile(polfilepath):
             remove(polfilepath)

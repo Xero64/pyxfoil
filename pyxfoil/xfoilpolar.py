@@ -171,43 +171,68 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
                         almin: float, almax: float, alint: float,
                         mach: float | None = None,
                         Re: float | None = None,
-                        ppar: int | None = None) -> tuple[str, str]:
+                        ppar: int | None = None,
+                        xtrtop: float = 1.0,
+                        xtrbot: float = 1.0) -> tuple[str, str]:
 
     from pyxfoil import workdir
 
     polname = name.replace(' ', '_') + f'_{numpnl:d}'
+
     if mach is not None:
         polname += f'_{mach:g}'
+
     if Re is not None:
         polname += f'_{Re:.12g}'
+
     filepath = join(workdir, polname)
     sesfilepath = f'{filepath:s}.ses'
     polfilepath = f'{filepath:s}.pol'
+
     with open(sesfilepath, 'wt') as file:
+
         file.write('load {:s}\n'.format(datfilepath))
+
         if ppar is not None:
             file.write('ppar\n')
             file.write('n {:d}\n'.format(ppar))
             file.write('\n')
             file.write('\n')
+
         file.write('oper\n')
+
         if mach is not None:
             file.write('mach {:g}\n'.format(mach))
+
         if Re is not None:
             file.write('visc {:.12g}\n'.format(Re))
+
+        # Set TRIP Position:
+        file.write('VPAR\n')
+        file.write('XTR\n')
+        file.write(f'{xtrtop:g}\n')
+        file.write(f'{xtrbot:g}\n')
+        file.write('\n')
+
         file.write('pacc\n')
         file.write('{:s}\n'.format(polfilepath))
         file.write('\n')
+
         file.write('aseq\n')
         file.write('{:g}\n'.format(almin))
         file.write('{:g}\n'.format(almax))
         file.write('{:g}\n'.format(alint))
+
         file.write('pacc\n')
+
         if mach is not None:
             file.write('mach 0.0\n')
+
         if Re is not None:
             file.write('visc\n')
+
         file.write('\n')
+
         file.write('quit\n')
 
     return sesfilepath, polfilepath
