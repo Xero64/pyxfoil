@@ -133,9 +133,9 @@ class XfoilPolar:
         elif var == 'cm':
             label = '$C_m$'
         elif var == 'toptr':
-            label = r'$Top X Transition$'
+            label = 'Top X Transition'
         elif var == 'bottr':
-            label = r'$Bottom X Transition$'
+            label = 'Bottom X Transition'
         elif var == 'clocd':
             label = r'$\frac{c_l}{c_d}$'
         else:
