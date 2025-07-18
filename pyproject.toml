@@ -1,6 +1,6 @@
 [project]
 name = "pyxfoil"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
   { name="Xero64", email="xero64@gmail.com" },
 ]
