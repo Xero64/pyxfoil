@@ -1,0 +1,19 @@
+[project]
+name = "pyxfoil"
+version = "0.0.4"
+authors = [
+  { name="Xero64", email="xero64@gmail.com" },
+]
+description = "Run XFoil from within Python and work with output results."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/Xero64/pyxfoil"
+Issues = "https://github.com/Xero64/pyxfoil/issues"
