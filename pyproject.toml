@@ -1,6 +1,6 @@
 [project]
 name = "pyxfoil"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
   { name="Xero64", email="xero64@gmail.com" },
 ]
@@ -13,6 +13,10 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "matplotlib>=3.10.3",
+    "numpy>=2.2.6",
+]
 
 [project.urls]
 Homepage = "https://github.com/Xero64/pyxfoil"

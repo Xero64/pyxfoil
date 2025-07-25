@@ -34,7 +34,7 @@ for ali in al:
 # Plots xfoil airfoil profile
 ax1 = xfoil.plot_profile(ls='-')
 ```
-![](./figures/pyxfoil_plots.py.1.svg)
+![](https://github.com/Xero64/pyxfoil/blob/main/figures/pyxfoil_plots.py.1.svg)
 
 #
 ``` python
@@ -44,7 +44,7 @@ for resname in xfoil.results:
     ax2 = xfoil.results[resname].plot_result(yaxis='cp', ax=ax2, ls='-x')
 _ = ax2.legend()
 ```
-![](./figures/pyxfoil_plots.py.2.svg)
+![](https://github.com/Xero64/pyxfoil/blob/main/figures/pyxfoil_plots.py.2.svg)
 
 #
 ``` python
@@ -54,7 +54,7 @@ for resname in xfoil.results:
     ax3 = xfoil.results[resname].plot_result(yaxis='ds', ax=ax3, ls='-o')
 _ = ax3.legend()
 ```
-![](./figures/pyxfoil_plots.py.3.svg)
+![](https://github.com/Xero64/pyxfoil/blob/main/figures/pyxfoil_plots.py.3.svg)
 
 #
 ``` python
@@ -84,7 +84,7 @@ axp1 = polar1.plot_polar(ax=axp1)
 axp1 = polar2.plot_polar(ax=axp1)
 _ = axp1.legend()
 ```
-![](./figures/pyxfoil_plots.py.4.svg)
+![](https://github.com/Xero64/pyxfoil/blob/main/figures/pyxfoil_plots.py.4.svg)
 
 #
 ``` python
@@ -94,7 +94,7 @@ axp2 = polar1.plot_polar(ax=axp2, xaxis='alpha', yaxis='clocd', ls='-o')
 axp2 = polar2.plot_polar(ax=axp2, xaxis='alpha', yaxis='clocd', ls='-x')
 _ = axp2.legend()
 ```
-![](./figures/pyxfoil_plots.py.5.svg)
+![](https://github.com/Xero64/pyxfoil/blob/main/figures/pyxfoil_plots.py.5.svg)
 
 #
 ``` python
@@ -104,4 +104,4 @@ axp3 = polar1.plot_polar(ax=axp3, xaxis='alpha', yaxis='cl', ls='-o')
 axp3 = polar2.plot_polar(ax=axp3, xaxis='alpha', yaxis='cl', ls='-x')
 _ = axp3.legend()
 ```
-![](./figures/pyxfoil_plots.py.6.svg)
+![](https://github.com/Xero64/pyxfoil/blob/main/figures/pyxfoil_plots.py.6.svg)
