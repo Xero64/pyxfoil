@@ -185,7 +185,7 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
                          Re: float | None = None,
                          ppar: int | None = None) -> tuple[str, str]:
 
-    from pyxfoil import workdir
+    from . import workdir
 
     resname = name.replace(' ', '_')
     resname += f'_{numpnl:d}_{alpha:g}'

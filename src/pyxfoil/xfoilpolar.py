@@ -175,7 +175,7 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
                         xtrtop: float = 1.0,
                         xtrbot: float = 1.0) -> tuple[str, str]:
 
-    from pyxfoil import workdir
+    from . import workdir
 
     polname = name.replace(' ', '_') + f'_{numpnl:d}'
 

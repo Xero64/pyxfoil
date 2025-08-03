@@ -68,7 +68,7 @@ class Xfoil:
 
     def write_dat(self) -> str:
 
-        from pyxfoil import workdir
+        from . import workdir
 
         datname = self.name.replace(' ', '_')
         filepath = join(workdir, datname)
@@ -88,7 +88,7 @@ class Xfoil:
     def run_result(self, alfa: float, Re: float=None,
                    mach: float=None) -> 'XfoilResult':
 
-        from pyxfoil import xfoilexe
+        from . import xfoilexe
 
         datfilepath = self.write_dat()
         numpnl = len(self.x) - 1
@@ -120,7 +120,7 @@ class Xfoil:
                   Re: float | None = None, mach: float | None = None,
                   xtrtop: float = 1.0, xtrbot: float = 1.0) -> 'XfoilPolar':
 
-        from pyxfoil import xfoilexe
+        from . import xfoilexe
 
         datfilepath = self.write_dat()
         numpnl = len(self.x) - 1
