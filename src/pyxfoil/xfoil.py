@@ -85,8 +85,8 @@ class Xfoil:
                 file.write(frmstr.format(self.x[i], self.y[i]))
         return datfilepath
 
-    def run_result(self, alfa: float, Re: float=None,
-                   mach: float=None) -> 'XfoilResult':
+    def run_result(self, alfa: float, *, Re: float = None,
+                   mach: float = None) -> 'XfoilResult':
 
         from . import xfoilexe
 
@@ -116,7 +116,7 @@ class Xfoil:
         self.results[res] = result
         return result
 
-    def run_polar(self, almin: float, almax: float, alint: float,
+    def run_polar(self, almin: float, almax: float, alint: float, *,
                   Re: float | None = None, mach: float | None = None,
                   xtrtop: float = 1.0, xtrbot: float = 1.0) -> 'XfoilPolar':
 
