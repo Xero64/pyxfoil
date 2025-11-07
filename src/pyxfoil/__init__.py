@@ -1,5 +1,4 @@
-from os import curdir
-
+from tempfile import gettempdir
 
 def find_xfoil(exe):
     def is_exe(fpath):
@@ -20,25 +19,21 @@ def find_xfoil(exe):
     return None
 
 
-xfoilexe = find_xfoil('xfoil.exe')
-workdir = None
+xfoilexe: str = find_xfoil('xfoil.exe')
+workdir: str = gettempdir()
 
 
 def set_xfoilexe(xfoil):
     global xfoilexe
     xfoilexe = xfoil
 
-
 def set_workdir(wdir):
     from os.path import join
     wdir = join(wdir, '')
     if ' ' in wdir:
-        print('The workding directory should have no spaces.')
+        print('The working directory should have no spaces.')
     global workdir
     workdir = wdir
-
-
-set_workdir(curdir)
 
 
 from .xfoil import Xfoil as Xfoil
