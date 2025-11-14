@@ -182,38 +182,58 @@ class XfoilResult:
 
 def write_result_session(name: str, datfilepath: str, numpnl: int,
                          alpha: float, mach: float | None = None,
-                         Re: float | None = None,
-                         ppar: int | None = None) -> tuple[str, str]:
+                         Re: float | None = None, ppar: int | None = None,
+                         xtrtop: float = 1.0, xtrbot: float = 1.0) -> tuple[str, str]:
 
     from . import workdir
 
     resname = name.replace(' ', '_')
     resname += f'_{numpnl:d}_{alpha:g}'
+
     if mach is not None:
         resname += f'_{mach:g}'
+
     if Re is not None:
         resname += f'_{Re:.12g}'
+
     filepath = join(workdir, resname)
     sesfilepath = f'{filepath:s}.ses'
     resfilepath = f'{filepath:s}.res'
+
     with open(sesfilepath, 'wt') as file:
+
         file.write('load {:s}\n'.format(datfilepath))
+
         if ppar is not None:
             file.write('ppar\n')
             file.write('n {:d}\n'.format(ppar))
             file.write('\n')
             file.write('\n')
+
         file.write('oper\n')
+
         if mach is not None:
             file.write('mach {:g}\n'.format(mach))
+
         if Re is not None:
             file.write('visc {:.12g}\n'.format(Re))
+
+        # Set TRIP Position:
+        file.write('vpar\n')
+        file.write('xtr\n')
+        file.write(f'{xtrtop:g}\n')
+        file.write(f'{xtrbot:g}\n')
+        file.write('\n')
+
         file.write('alfa {:g}\n'.format(alpha))
         file.write('dump {:s}\n'.format(resfilepath))
+
         if mach is not None:
             file.write('mach 0.0\n')
+
         if Re is not None:
             file.write('visc\n')
+
         file.write('\n')
         file.write('quit\n')
 

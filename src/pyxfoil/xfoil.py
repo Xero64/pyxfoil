@@ -86,7 +86,8 @@ class Xfoil:
         return datfilepath
 
     def run_result(self, alfa: float, *, Re: float = None,
-                   mach: float = None) -> 'XfoilResult':
+                   mach: float = None, xtrtop: float = 1.0,
+                   xtrbot: float = 1.0) -> 'XfoilResult':
 
         from . import xfoilexe
 
@@ -94,7 +95,8 @@ class Xfoil:
         numpnl = len(self.x) - 1
         sesfilepath, resfilepath = write_result_session(self.name, datfilepath, numpnl,
                                                         alfa, mach=mach, Re=Re,
-                                                        ppar=self.ppar)
+                                                        ppar=self.ppar, xtrtop=xtrtop,
+                                                        xtrbot=xtrbot)
 
         if isfile(resfilepath):
             remove(resfilepath)
