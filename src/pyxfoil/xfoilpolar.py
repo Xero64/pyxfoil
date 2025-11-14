@@ -208,8 +208,8 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
             file.write('visc {:.12g}\n'.format(Re))
 
         # Set TRIP Position:
-        file.write('VPAR\n')
-        file.write('XTR\n')
+        file.write('vpar\n')
+        file.write('xtr\n')
         file.write(f'{xtrtop:g}\n')
         file.write(f'{xtrbot:g}\n')
         file.write('\n')
