@@ -14,7 +14,7 @@ class XfoilPolar:
     numpnl: int = None
     Re: float | None = None
     mach: float | None = None
-    ncrit: float = None
+    ncrit: float | None = None
     xtrftop: float = None
     xtrfbot: float = None
     alpha: 'NDArray' = None
@@ -115,6 +115,10 @@ class XfoilPolar:
             label += r'; '
         if self.mach is not None:
             label += r'$M = {:g}$'.format(self.mach)
+        if self.Re is not None and self.mach is not None and self.ncrit is not None:
+            label += r'; '
+        if self.ncrit is not None:
+            label += r'; $N_{{crit}} = {:g}$'.format(self.ncrit)
         xvalue = self.get_value(xaxis)
         yvalue = self.get_value(yaxis)
         kwargs.setdefault('label', label)
@@ -173,9 +177,10 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
                         Re: float | None = None,
                         ppar: int | None = None,
                         xtrtop: float = 1.0,
-                        xtrbot: float = 1.0) -> tuple[str, str]:
+                        xtrbot: float = 1.0,
+                        ncrit: float = None) -> tuple[str, str]:
 
-    from . import workdir
+    # from . import workdir
 
     polname = name.replace(' ', '_') + f'_{numpnl:d}'
 
@@ -185,7 +190,11 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
     if Re is not None:
         polname += f'_{Re:.12g}'
 
-    filepath = join(workdir, polname)
+    if ncrit is not None:
+        polname += f'_{ncrit:.1f}'
+
+    # filepath = join(workdir, polname)
+    filepath = polname
     sesfilepath = f'{filepath:s}.ses'
     polfilepath = f'{filepath:s}.pol'
 
@@ -209,6 +218,10 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
 
         # Set TRIP Position:
         file.write('vpar\n')
+
+        if ncrit is not None:
+            file.write('N {:.1f}\n'.format(ncrit))
+
         file.write('xtr\n')
         file.write(f'{xtrtop:g}\n')
         file.write(f'{xtrbot:g}\n')
@@ -230,6 +243,10 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
 
         if Re is not None:
             file.write('visc\n')
+
+        if ncrit is not None:
+            file.write('vpar\n')
+            file.write('N 9.0\n')
 
         file.write('\n')
 

@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from os import remove, system
+from os import remove, system, chdir, curdir
 from os.path import isfile, join, split
 from typing import TYPE_CHECKING, Any
 
@@ -74,29 +74,37 @@ class Xfoil:
         filepath = join(workdir, datname)
         datfilepath = f'{filepath:s}.dat'
         num = len(self.x)
+
         if self.area >= 0:
             order = range(num-1, -1, -1)
         else:
             order = range(num)
         frmstr = '  {:' + self.frmstr + '} {:' + self.frmstr + '}\n'
+
         with open(datfilepath, 'wt') as file:
             file.write(self.name+'\n')
             for i in order:
                 file.write(frmstr.format(self.x[i], self.y[i]))
+
         return datfilepath
 
     def run_result(self, alfa: float, *, Re: float = None,
-                   mach: float = None, xtrtop: float = 1.0,
-                   xtrbot: float = 1.0) -> 'XfoilResult':
+                   mach: float = None, ncrit: float = None,
+                   xtrtop: float = 1.0, xtrbot: float = 1.0) -> 'XfoilResult':
 
-        from . import xfoilexe
+        from . import xfoilexe, workdir
+
+        thisdir = curdir
 
         datfilepath = self.write_dat()
         numpnl = len(self.x) - 1
+
+        chdir(workdir)
         sesfilepath, resfilepath = write_result_session(self.name, datfilepath, numpnl,
                                                         alfa, mach=mach, Re=Re,
                                                         ppar=self.ppar, xtrtop=xtrtop,
-                                                        xtrbot=xtrbot)
+                                                        xtrbot=xtrbot, ncrit=ncrit)
+        chdir(thisdir)
 
         if isfile(resfilepath):
             remove(resfilepath)
@@ -106,9 +114,11 @@ class Xfoil:
             err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
             raise SystemError(err)
 
+        chdir(workdir)
         system('{:s} < {:s}'.format(xfoilexe, sesfilepath))
+        chdir(thisdir)
 
-        res = split(resfilepath)[1]
+        res: str  = split(resfilepath)[1]
         res = res.replace('.res', '')
         result = XfoilResult(res, numpnl)
         result.set_param(alfa, mach, Re)
@@ -120,16 +130,22 @@ class Xfoil:
 
     def run_polar(self, almin: float, almax: float, alint: float, *,
                   Re: float | None = None, mach: float | None = None,
-                  xtrtop: float = 1.0, xtrbot: float = 1.0) -> 'XfoilPolar':
+                  xtrtop: float = 1.0, xtrbot: float = 1.0,
+                  ncrit: float = None) -> 'XfoilPolar':
 
-        from . import xfoilexe
+        from . import xfoilexe, workdir
+
+        thisdir = curdir
 
         datfilepath = self.write_dat()
         numpnl = len(self.x) - 1
+
+        chdir(workdir)
         sesfilepath, polfilepath = write_polar_session(self.name, datfilepath,
                                                        numpnl, almin, almax, alint,
                                                        mach=mach, Re=Re, ppar=self.ppar,
-                                                       xtrtop=xtrtop, xtrbot=xtrbot)
+                                                       xtrtop=xtrtop, xtrbot=xtrbot, ncrit=ncrit)
+        chdir(thisdir)
 
         if isfile(polfilepath):
             remove(polfilepath)
@@ -139,7 +155,9 @@ class Xfoil:
             err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
             raise SystemError(err)
 
+        chdir(workdir)
         system('{:s} < {:s}'.format(xfoilexe, sesfilepath))
+        chdir(thisdir)
 
         pol: str = split(polfilepath)[1]
         pol = pol.replace('.pol', '')

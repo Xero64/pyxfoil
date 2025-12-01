@@ -15,6 +15,7 @@ class XfoilResult:
     alpha: float = None
     Re: float | None = None
     mach: float | None = None
+    ncrit: float | None = None
     s: 'NDArray' = None
     x: 'NDArray' = None
     y: 'NDArray' = None
@@ -100,8 +101,14 @@ class XfoilResult:
             title = r'Result plot for $\alpha = {:g}$'.format(self.alpha)
             if self.Re is not None:
                 title += r' and $Re = {:.12g}$'.format(self.Re)
+            if self.Re is not None and self.mach is not None:
+                title += r'; '
             if self.mach is not None:
                 title += r' and $M = {:g}$'.format(self.mach)
+            if self.Re is not None and self.mach is not None and self.ncrit is not None:
+                label += r'; '
+            if self.ncrit is not None:
+                title += r' and $N_{crit} = {:g}$'.format(self.ncrit)
             ax.set_title(title)
             if yaxis == 'cp':
                 ax.invert_yaxis()
@@ -183,9 +190,10 @@ class XfoilResult:
 def write_result_session(name: str, datfilepath: str, numpnl: int,
                          alpha: float, mach: float | None = None,
                          Re: float | None = None, ppar: int | None = None,
-                         xtrtop: float = 1.0, xtrbot: float = 1.0) -> tuple[str, str]:
+                         xtrtop: float = 1.0, xtrbot: float = 1.0,
+                         ncrit: float = None) -> tuple[str, str]:
 
-    from . import workdir
+    # from . import workdir
 
     resname = name.replace(' ', '_')
     resname += f'_{numpnl:d}_{alpha:g}'
@@ -196,7 +204,11 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
     if Re is not None:
         resname += f'_{Re:.12g}'
 
-    filepath = join(workdir, resname)
+    if ncrit is not None:
+        resname += f'_{ncrit:.1f}'
+
+    filepath = resname
+    # filepath = join(workdir, resname)
     sesfilepath = f'{filepath:s}.ses'
     resfilepath = f'{filepath:s}.res'
 
@@ -220,6 +232,10 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
 
         # Set TRIP Position:
         file.write('vpar\n')
+
+        if ncrit is not None:
+            file.write('N {:.1f}\n'.format(ncrit))
+
         file.write('xtr\n')
         file.write(f'{xtrtop:g}\n')
         file.write(f'{xtrbot:g}\n')
@@ -233,6 +249,10 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
 
         if Re is not None:
             file.write('visc\n')
+
+        if ncrit is not None:
+            file.write('vpar\n')
+            file.write('N 9.0\n')
 
         file.write('\n')
         file.write('quit\n')

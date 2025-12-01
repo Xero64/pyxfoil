@@ -1,8 +1,8 @@
 #%%
 # Import Dependencies
-from pyxfoil import Xfoil, set_workdir  # , set_xfoilexe
+from pyxfoil import Xfoil#, set_workdir, set_xfoilexe
 
-set_workdir('C:/Xfoil_WIP') # Sets the working directory for pyxfoil.
+# set_workdir('C:/Xfoil_WIP') # Sets the working directory for pyxfoil.
 # set_xfoilexe('C:/Xfoil-6.99/xfoil.exe') # Sets the path of the xfoil executable.
 
 #%%
@@ -15,9 +15,10 @@ xfoil.set_ppar(180)
 # Runs xfoil for the following parameters
 al = [-2.0, 0.0, 4.0, 6.0]
 mach = 0.1
-Re = 100000.0
+Re = 300000.0
+ncrit = 7.0
 for ali in al:
-    rescase = xfoil.run_result(ali, mach=mach, Re=Re)
+    rescase = xfoil.run_result(ali, mach=mach, Re=Re, ncrit=ncrit)
 
 #%%
 # Plots xfoil airfoil profile
@@ -39,19 +40,21 @@ _ = ax3.legend()
 
 #%%
 # Run the xfoil in polar mode from alpha min to alpha max with interval
-Re = 100000.0
+Re = 300000.0
 almin = -10.0
 almax = 10.0
 alint = 0.5
-polar1 = xfoil.run_polar(almin, almax, alint, mach=mach, Re=Re)
+ncrit = 7.0
+polar1 = xfoil.run_polar(almin, almax, alint, mach=mach, Re=Re, ncrit=ncrit)
 
 #%%
 # Run the xfoil in polar mode from alpha min to alpha max with interval
-Re = 200000.0
+Re = 300000.0
 almin = -10.0
 almax = 10.0
 alint = 0.5
-polar2 = xfoil.run_polar(almin, almax, alint, mach=mach, Re=Re)
+ncrit = 11.0
+polar2 = xfoil.run_polar(almin, almax, alint, mach=mach, Re=Re, ncrit=ncrit)
 
 #%%
 # Plot two polars created above
