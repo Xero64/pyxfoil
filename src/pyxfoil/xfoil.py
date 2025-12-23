@@ -1,11 +1,10 @@
 from collections.abc import Iterable
-from os import remove, system, chdir, curdir
+from os import chdir, remove, system
 from os.path import isfile, join, split
 from typing import TYPE_CHECKING, Any
 
-from numpy import asarray
-
 from matplotlib.pyplot import figure
+from numpy import asarray
 
 from .xfoilpolar import XfoilPolar, write_polar_session
 from .xfoilresult import XfoilResult, write_result_session
@@ -92,7 +91,14 @@ class Xfoil:
                    mach: float = None, ncrit: float = None,
                    xtrtop: float = 1.0, xtrbot: float = 1.0) -> 'XfoilResult':
 
-        from . import xfoilexe, workdir
+        from os import curdir
+
+        from . import workdir, xfoilexe
+
+        if xfoilexe is None:
+            err = 'Cannot locate "xfoil.exe" in path. '
+            err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
+            raise SystemError(err)
 
         thisdir = curdir
 
@@ -109,20 +115,19 @@ class Xfoil:
         if isfile(resfilepath):
             remove(resfilepath)
 
-        if xfoilexe is None:
-            err = 'Cannot locate "xfoil.exe" in path. '
-            err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
-            raise SystemError(err)
-
         chdir(workdir)
-        system('{:s} < {:s}'.format(xfoilexe, sesfilepath))
+        system(f'{xfoilexe:s} < {sesfilepath:s}')
         chdir(thisdir)
 
         res: str  = split(resfilepath)[1]
         res = res.replace('.res', '')
         result = XfoilResult(res, numpnl)
         result.set_param(alfa, mach, Re)
+
+        chdir(workdir)
         result.read_result(resfilepath)
+        chdir(thisdir)
+
         if self.results is None:
             self.results = {}
         self.results[res] = result
@@ -133,7 +138,14 @@ class Xfoil:
                   xtrtop: float = 1.0, xtrbot: float = 1.0,
                   ncrit: float = None) -> 'XfoilPolar':
 
-        from . import xfoilexe, workdir
+        from os import curdir
+
+        from . import workdir, xfoilexe
+
+        if xfoilexe is None:
+            err = 'Cannot locate "xfoil.exe" in path. '
+            err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
+            raise SystemError(err)
 
         thisdir = curdir
 
@@ -150,11 +162,6 @@ class Xfoil:
         if isfile(polfilepath):
             remove(polfilepath)
 
-        if xfoilexe is None:
-            err = 'Cannot locate "xfoil.exe" in path. '
-            err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
-            raise SystemError(err)
-
         chdir(workdir)
         system('{:s} < {:s}'.format(xfoilexe, sesfilepath))
         chdir(thisdir)
@@ -162,7 +169,11 @@ class Xfoil:
         pol: str = split(polfilepath)[1]
         pol = pol.replace('.pol', '')
         polar = XfoilPolar(pol, numpnl)
+
+        chdir(workdir)
         polar.read_polar(polfilepath)
+        chdir(thisdir)
+
         if self.polars is None:
             self.polars = {}
         self.polars[pol] = polar

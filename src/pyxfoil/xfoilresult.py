@@ -207,6 +207,9 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
     if ncrit is not None:
         resname += f'_{ncrit:.1f}'
 
+    resname = resname.replace('.', 'p')
+    resname = resname.replace('-', 'm')
+
     filepath = resname
     # filepath = join(workdir, resname)
     sesfilepath = f'{filepath:s}.ses'

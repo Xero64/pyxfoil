@@ -193,6 +193,9 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
     if ncrit is not None:
         polname += f'_{ncrit:.1f}'
 
+    polname = polname.replace('.', 'p')
+    polname = polname.replace('-', 'm')
+
     # filepath = join(workdir, polname)
     filepath = polname
     sesfilepath = f'{filepath:s}.ses'
