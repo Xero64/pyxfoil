@@ -123,16 +123,16 @@ class XfoilResult:
         ax.plot(xvalue, yvalue, **kwargs)
         return ax
 
-    def result(self, var: str, correct: bool=False) -> 'NDArray':
+    def result(self, var: str, correct: bool = False) -> 'NDArray':
         res = self.get_value(var)
         if correct:
             if var == 's':
-                offset = max(res[:self.numpnl+1])
-                val = [offset-resi for resi in res[:self.numpnl+1]]
+                offset = max(res[:self.numpnl + 1])
+                val = [offset - resi for resi in res[:self.numpnl + 1]]
             else:
-                val = [resi for resi in res[:self.numpnl+1]]
+                val = [resi for resi in res[:self.numpnl + 1]]
             val.reverse()
-            val = val + res[self.numpnl+1:]
+            val = val + res[self.numpnl + 1:]
         else:
             val = res.copy()
         return val
