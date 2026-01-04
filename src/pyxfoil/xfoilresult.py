@@ -1,12 +1,24 @@
-from os.path import join
+# from os.path import join
 from typing import TYPE_CHECKING, Any
 
 from matplotlib.pyplot import figure
-from numpy import asarray, radians
+from numpy import asarray, concatenate, radians
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from numpy.typing import NDArray
+
+LABELS = {
+    'x': '$x$',
+    'y': '$y$',
+    's': '$s$',
+    'ue': '$u_e$',
+    'cp': '$c_p$',
+    'ds': r'$\delta^*$',
+    'th': r'$\theta$',
+    'h': '$h$',
+    'cf': '$c_f$',
+}
 
 
 class XfoilResult:
@@ -94,8 +106,8 @@ class XfoilResult:
             ax = fig.gca()
             grid = kwargs.pop('grid', True)
             ax.grid(grid)
-            xlabel = self.get_label(xaxis)
-            ylabel = self.get_label(yaxis)
+            xlabel = LABELS[xaxis]
+            ylabel = LABELS[yaxis]
             ax.set_xlabel(xlabel)
             ax.set_ylabel(ylabel)
             title = r'Result plot for $\alpha = {:g}$'.format(self.alpha)
@@ -117,71 +129,24 @@ class XfoilResult:
             label += r'; $Re = {:.12g}$'.format(self.Re)
         if self.mach is not None:
             label += r'; $M = {:g}$'.format(self.mach)
-        xvalue = self.get_value(xaxis)
-        yvalue = self.get_value(yaxis)
+        xvalue = getattr(self, xaxis)
+        yvalue = getattr(self, yaxis)
         kwargs.setdefault('label', label)
         ax.plot(xvalue, yvalue, **kwargs)
         return ax
 
     def result(self, var: str, correct: bool = False) -> 'NDArray':
-        res = self.get_value(var)
+        res = asarray(getattr(self, var))
         if correct:
             if var == 's':
-                offset = max(res[:self.numpnl + 1])
-                val = [offset - resi for resi in res[:self.numpnl + 1]]
+                offset = res[:self.numpnl + 1].max()
+                val = offset - res[:self.numpnl + 1]
             else:
-                val = [resi for resi in res[:self.numpnl + 1]]
-            val.reverse()
-            val = val + res[self.numpnl + 1:]
+                val = res.copy()
+            val = concatenate((val[::-1], res[self.numpnl + 1:]))
         else:
             val = res.copy()
         return val
-
-    def get_label(self, var: str) -> str:
-        if var == 'x':
-            label = '$x$'
-        elif var == 'y':
-            label = '$y$'
-        elif var == 's':
-            label = '$s$'
-        elif var == 'ue':
-            label = '$u_e$'
-        elif var == 'cp':
-            label = '$c_p$'
-        elif var == 'ds':
-            label = r'$\delta^*$'
-        elif var == 'th':
-            label = r'$\theta$'
-        elif var == 'h':
-            label = '$h$'
-        elif var == 'cf':
-            label = '$c_f$'
-        else:
-            raise ValueError(f'{var:s} does not exist in XfoilResult.')
-        return label
-
-    def get_value(self, var: str) -> 'NDArray':
-        if var == 'x':
-            value = self.x
-        elif var == 'y':
-            value = self.y
-        elif var == 's':
-            value = self.s
-        elif var == 'ue':
-            value = self.ue
-        elif var == 'cp':
-            value = self.cp
-        elif var == 'ds':
-            value = self.ds
-        elif var == 'th':
-            value = self.th
-        elif var == 'h':
-            value = self.h
-        elif var == 'cf':
-            value = self.cf
-        else:
-            raise ValueError(f'{var:s} does not exist in XfoilResult.')
-        return value
 
     def __repr__(self) -> str:
         return f'<pyxfoil.XfoilResult {self.name:s}>'
@@ -192,8 +157,6 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
                          Re: float | None = None, ppar: int | None = None,
                          xtrtop: float = 1.0, xtrbot: float = 1.0,
                          ncrit: float = None) -> tuple[str, str]:
-
-    # from . import workdir
 
     resname = name.replace(' ', '_')
     resname += f'_{numpnl:d}_{alpha:g}'
@@ -211,7 +174,6 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
     resname = resname.replace('-', 'm')
 
     filepath = resname
-    # filepath = join(workdir, resname)
     sesfilepath = f'{filepath:s}.ses'
     resfilepath = f'{filepath:s}.res'
 
