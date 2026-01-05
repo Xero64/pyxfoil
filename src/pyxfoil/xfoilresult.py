@@ -95,7 +95,7 @@ class XfoilResult:
     @property
     def cp(self) -> 'NDArray':
         if self._cp is None:
-            self._cp = asarray([1-uei**2 for uei in self.ue])
+            self._cp = asarray([1.0 - uei**2 for uei in self.ue])
         return self._cp
 
     def plot_result(self, xaxis='x', yaxis='ue', ax: 'Axes| None' = None,
@@ -142,7 +142,7 @@ class XfoilResult:
                 offset = res[:self.numpnl + 1].max()
                 val = offset - res[:self.numpnl + 1]
             else:
-                val = res.copy()
+                val = res[:self.numpnl + 1].copy()
             val = concatenate((val[::-1], res[self.numpnl + 1:]))
         else:
             val = res.copy()
