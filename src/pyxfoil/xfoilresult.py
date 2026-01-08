@@ -179,6 +179,11 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
 
     with open(sesfilepath, 'wt') as file:
 
+        # PLOP
+        # G    # to not open graphics window with ppar
+        file.write('PLOP\nG\n')
+        file.write('\n')
+
         file.write('load {:s}\n'.format(datfilepath))
 
         if ppar is not None:
