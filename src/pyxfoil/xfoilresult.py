@@ -98,7 +98,7 @@ class XfoilResult:
             self._cp = asarray([1.0 - uei**2 for uei in self.ue])
         return self._cp
 
-    def plot_result(self, xaxis='x', yaxis='ue', ax: 'Axes| None' = None,
+    def plot_result(self, xaxis='s', yaxis='ue', ax: 'Axes| None' = None,
                     **kwargs: dict[str, Any]) -> 'Axes':
         if ax is None:
             figsize = kwargs.pop('figsize', (12, 8))
