@@ -201,7 +201,14 @@ def write_polar_session(name: str, datfilepath: str, numpnl: int,
     sesfilepath = f'{filepath:s}.ses'
     polfilepath = f'{filepath:s}.pol'
 
+    from . import nographics
+
     with open(sesfilepath, 'wt') as file:
+
+        if nographics:
+            file.write('plop\n')
+            file.write('g\n')
+            file.write('\n')
 
         file.write('load {:s}\n'.format(datfilepath))
 

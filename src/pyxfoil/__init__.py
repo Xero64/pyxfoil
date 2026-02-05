@@ -21,13 +21,13 @@ def find_xfoil(exe):
 
 xfoilexe: str = find_xfoil('xfoil.exe')
 workdir: str = gettempdir()
+nographics: bool = True
 
-
-def set_xfoilexe(xfoil):
+def set_xfoilexe(xfoil: str) -> None:
     global xfoilexe
     xfoilexe = xfoil
 
-def set_workdir(wdir):
+def set_workdir(wdir: str) -> None:
     from os.path import join
     wdir = join(wdir, '')
     if ' ' in wdir:
@@ -35,5 +35,8 @@ def set_workdir(wdir):
     global workdir
     workdir = wdir
 
+def set_nographics(flag: bool) -> None:
+    global nographics
+    nographics = flag
 
 from .xfoil import Xfoil as Xfoil

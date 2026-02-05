@@ -156,7 +156,7 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
                          alpha: float, mach: float | None = None,
                          Re: float | None = None, ppar: int | None = None,
                          xtrtop: float = 1.0, xtrbot: float = 1.0,
-                         ncrit: float = None, graphics: bool = False) -> tuple[str, str]:
+                         ncrit: float = None) -> tuple[str, str]:
 
     resname = name.replace(' ', '_')
     resname += f'_{numpnl:d}_{alpha:g}'
@@ -177,10 +177,11 @@ def write_result_session(name: str, datfilepath: str, numpnl: int,
     sesfilepath = f'{filepath:s}.ses'
     resfilepath = f'{filepath:s}.res'
 
+    from . import nographics
+
     with open(sesfilepath, 'wt') as file:
 
-        if not graphics:
-            # do not open graphics window with ppar
+        if nographics:
             file.write('plop\n')
             file.write('g\n')
             file.write('\n')
