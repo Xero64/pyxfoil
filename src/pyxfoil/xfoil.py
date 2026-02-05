@@ -19,8 +19,8 @@ class Xfoil:
     ppar: int = None
     x: 'NDArray' = None
     y: 'NDArray' = None
-    results: dict[str, 'XfoilResult'] = None
-    polars: dict[str, 'XfoilPolar'] = None
+    results: dict[str, XfoilResult] = None
+    polars: dict[str, XfoilPolar] = None
     frmstr: str = None
     _area: float = None
 
@@ -89,7 +89,7 @@ class Xfoil:
 
     def run_result(self, alfa: float, *, Re: float = None,
                    mach: float = None, ncrit: float = None,
-                   xtrtop: float = 1.0, xtrbot: float = 1.0) -> 'XfoilResult':
+                   xtrtop: float = 1.0, xtrbot: float = 1.0) -> XfoilResult:
 
         from os import curdir
 
@@ -136,7 +136,7 @@ class Xfoil:
     def run_polar(self, almin: float, almax: float, alint: float, *,
                   Re: float | None = None, mach: float | None = None,
                   xtrtop: float = 1.0, xtrbot: float = 1.0,
-                  ncrit: float = None) -> 'XfoilPolar':
+                  ncrit: float = None) -> XfoilPolar:
 
         from os import curdir
 
