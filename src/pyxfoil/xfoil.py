@@ -1,6 +1,6 @@
 from collections.abc import Iterable
 from os import chdir, remove, system
-from os.path import isfile, join, split
+from os.path import isfile, join, split, abspath
 from typing import TYPE_CHECKING, Any
 
 from matplotlib.pyplot import figure
@@ -100,7 +100,7 @@ class Xfoil:
             err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
             raise SystemError(err)
 
-        thisdir = curdir
+        thisdir = abspath(curdir)
 
         datfilepath = self.write_dat()
         numpnl = len(self.x) - 1
@@ -147,7 +147,7 @@ class Xfoil:
             err += 'Import set_xfoilexe and use it to directly point to "xfoil.exe".'
             raise SystemError(err)
 
-        thisdir = curdir
+        thisdir = abspath(curdir)
 
         datfilepath = self.write_dat()
         numpnl = len(self.x) - 1
